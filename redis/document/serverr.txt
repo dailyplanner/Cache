@@ -1,0 +1,17 @@
+1, 更新服务器每秒执行命令次数
+  serverCron函数中的 trackOperationsPerSecond函数会以每100毫秒一次的频率执行，这个函数的功能是以抽样计算的方式估算并记录服务
+  器在最近一秒钟处理的命令请求数量，这个值可以通过 INFO status命令的 instantaneous_ops_per_sec查看：
+  redIs> INFo stats
+  ....
+  instantaneous ops per sec: 6
+  ...
+  上面的命令结果显示，在最近的一秒钟内，服务器处理了大概六个命令。
+
+2,每次 serverCron函数执行时，程序都会去看服务器当前使用的内存数量，并与sat_peak_memory保存的数值进行比较，如果当前使用的内存数
+量比stat_peak_memory属性记录的值要大，那么程序就将当前使用的内存数量记录到sat_peak_memory属性
+
+  INFO memory命令的  used_memory_peak和 used_memory_peak_human两个域分别以两种格式记录了服务器的内存峰值：
+  redis> INFO memory
+  Memory
+  used memory peak: 501824
+  used memory peak human: 490. 06K
