@@ -17,27 +17,49 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("unchecked")
 @Component
 public class RedisUtils {
     private static final Logger logger = LoggerFactory.getLogger(RedisUtils.class);
 
-    @SuppressWarnings("rawtypes")
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate redisTemplate;
 
-    public void add(String key,String value) {
+    /**
+     * 保存键值对
+     * @param key
+     * @param value
+     */
+    public void set(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
     }
-    public void add(String key,String value,Long time) {
-        redisTemplate.opsForValue().set(key, value, time, TimeUnit.MINUTES);
+
+    /**
+     * 保存键值对并设置多久后过期，单位秒
+     * @param key
+     * @param value
+     * @param time
+     */
+    public void set(String key, Object value, long time) {
+        redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
     }
 
-    public String get(String key) {
+    /**
+     * 根据键获取对应的值
+     * @param key
+     * @return
+     */
+    public Object get(String key) {
         return redisTemplate.opsForValue().get(key);
     }
 
-    public boolean update(String key, String value) {
+    /**
+     * 只有当对应的key存在时才更新对应的值
+     * 如果key不存在，返回false
+     * @param key
+     * @param value
+     * @return
+     */
+    public boolean setIfPresent(String key, Object value) {
         return redisTemplate.opsForValue().setIfPresent(key, value);
     }
 

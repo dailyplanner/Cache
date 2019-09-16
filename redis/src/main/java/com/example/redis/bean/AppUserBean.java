@@ -22,4 +22,5 @@ public class AppUserBean {
     private Date gmtCreate;
 
     private Date gmtModified;
+
 }

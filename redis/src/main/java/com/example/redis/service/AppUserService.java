@@ -5,16 +5,11 @@ import com.example.redis.dao.AppUserDao;
 import com.example.redis.utils.RedisUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 @Service
 public class AppUserService {
@@ -29,21 +24,19 @@ public class AppUserService {
     public AppUserBean getAppUserById(Long appUserId) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        String json;
-        json = redisUtils.get(appUserId.toString());
-        if(json != null) {
+        AppUserBean appUserBean = (AppUserBean)redisUtils.get(appUserId.toString());
+        if(appUserBean != null) {
             logger.info("The data got from redis");
-            return gson.fromJson(json, AppUserBean.class);
+            return appUserBean;
         }
         logger.info("The data got from mysql");
-        AppUserBean userBean = appUserDao.getAppUserById(appUserId);
-        redisUtils.add(appUserId.toString(), gson.toJson(userBean));
-        return userBean;
+        appUserBean = appUserDao.getAppUserById(appUserId);
+        redisUtils.set(appUserId.toString(), appUserBean);
+        return appUserBean;
     }
 
     public boolean updateAppUser(AppUserBean appUserBean) {
-        Gson gson = new GsonBuilder().create();
-        return redisUtils.update(appUserBean.getId().toString(), gson.toJson(appUserBean));
+        return redisUtils.update(appUserBean.getId().toString(), appUserBean);
     }
 
     public boolean delAppUserById(Long appUserId) {
